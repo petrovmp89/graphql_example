@@ -1,6 +1,12 @@
 Types::CommentType = GraphQL::ObjectType.define do
   name "Comment"
-  field :id, types.Int
+  interfaces [Interfaces::ActiveRecordInterface]
   field :body, types.String
-  field :created_at, types.String
+  field :post_title do
+    type types.String
+
+    resolve -> (obj, args, ctx) {
+      obj.post.title
+    }
+  end
 end
