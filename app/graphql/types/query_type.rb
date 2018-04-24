@@ -1,7 +1,7 @@
 Types::QueryType = GraphQL::ObjectType.define do
   name "Query"
   field :posts, !types[Types::PostType] do
-    argument :page, !types.ID
+    argument :page, !types.Int
     resolve -> (obj, args, ctx) {
       Post.page(args["page"])
     }
