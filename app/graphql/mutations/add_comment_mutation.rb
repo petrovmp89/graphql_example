@@ -13,7 +13,6 @@ Mutations::AddCommentMutation = GraphQL::Relay::Mutation.define do
 
     {
       success: comment.persisted?,
-      body: comment.body,
       notice: comment.attributes,
       errors: comment.errors.full_messages.to_sentence
     }
