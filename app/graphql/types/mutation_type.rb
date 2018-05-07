@@ -4,4 +4,6 @@ Types::MutationType = GraphQL::ObjectType.define do
   field :updateComment, field: Mutations::UpdateCommentMutation.field
   field :deleteComment, field: Mutations::DeleteCommentMutation.field
   field :addPost, field: Mutations::AddPostMutation.field
+  field :addRoom, field: Mutations::AddRoomMutation.field
+  field :addMessage, field: Mutations::AddMessageMutation.field
 end
