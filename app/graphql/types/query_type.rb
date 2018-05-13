@@ -29,9 +29,8 @@ Types::QueryType = GraphQL::ObjectType.define do
   end
 
   field :rooms, !types[Types::RoomType] do
-    argument :page, !types.ID
     resolve -> (obj, args, ctx) {
-      Room.page(args["page"])
+      Room.all
     }
   end
 
@@ -43,9 +42,8 @@ Types::QueryType = GraphQL::ObjectType.define do
   end
 
   field :messages, !types[Types::MessageType] do
-    argument :page, !types.ID
     resolve -> (obj, args, ctx) {
-      Messase.page(args["page"])
+      Messase.all
     }
   end
 
