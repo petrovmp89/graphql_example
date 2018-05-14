@@ -28,22 +28,22 @@ Types::QueryType = GraphQL::ObjectType.define do
     resolve ->(obj, args, ctx) { Comment.find(args["id"]) }
   end
 
-  field :rooms, !types[Types::RoomType] do
+  field :channels, !types[Types::ChannelType] do
     resolve -> (obj, args, ctx) {
-      Room.all
+      Channel.all
     }
   end
 
-  field :room do
-    type Types::RoomType
+  field :channel do
+    type Types::ChannelType
     argument :id, !types.ID
-    description "Find a room by ID"
-    resolve ->(obj, args, ctx) { Room.find(args["id"]) }
+    description "Find a channel by ID"
+    resolve ->(obj, args, ctx) { Channel.find(args["id"]) }
   end
 
   field :messages, !types[Types::MessageType] do
     resolve -> (obj, args, ctx) {
-      Messase.all
+      Message.all
     }
   end
 

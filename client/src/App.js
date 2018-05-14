@@ -1,93 +1,76 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import {
+  BrowserRouter,
+  Link,
+  Route,
+  Switch,
+} from 'react-router-dom';
+
 import './App.css';
+import ChannelsListWithData from './components/ChannelsListWithData';
+import NotFound from './components/NotFound';
+import ChannelDetails from './components/ChannelDetails';
 
-import ApolloClient from 'apollo-client';
-import { graphql, ApolloProvider, createNetworkInterface } from 'react-apollo';
-import gql from 'graphql-tag';
+import {
+  ApolloClient,
+  ApolloProvider,
+  createNetworkInterface,
+  toIdValue,
+} from 'react-apollo';
 
-const networkInterface = createNetworkInterface({
-  uri: 'http://localhost:4000/graphql',
+import { SubscriptionClient, addGraphQLSubscriptions } from 'subscriptions-transport-ws';
+
+const networkInterface = createNetworkInterface({ uri: 'http://localhost:4000/graphql' });
+networkInterface.use([{
+  applyMiddleware(req, next) {
+    setTimeout(next, 500);
+  },
+}]);
+
+const wsClient = new SubscriptionClient(`ws://localhost:4000/subscriptions`, {
+  reconnect: true
 });
+
+const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
+  networkInterface,
+  wsClient
+);
+
+function dataIdFromObject (result) {
+  if (result.__typename) {
+    if (result.id !== undefined) {
+      return `${result.__typename}:${result.id}`;
+    }
+  }
+  return null;
+}
 
 const client = new ApolloClient({
-  networkInterface,
+  networkInterface: networkInterfaceWithSubscriptions,
+  customResolvers: {
+    Query: {
+      channel: (_, args) => {
+        return toIdValue(dataIdFromObject({ __typename: 'Channel', id: args['id'] }))
+      },
+    },
+  },
+  dataIdFromObject,
 });
-
-const AddRoom = ({ mutate }) => {
-  const handleKeyUp = (e) => {
-    if (e.keyCode === 13) {
-      e.persist();
-      mutate({
-        variables: { name: e.target.value },
-        refetchQueries: [ { query: roomListQuery }]
-      })
-      .then( res => {
-        e.target.value = '';
-      });
-    }
-  };
-  return (
-    <input
-      type="text"
-      placeholder="New room"
-      onKeyUp={handleKeyUp}
-    />
-  );
-};
-
-const addRoomMutation = gql`
-  mutation addRoom($name: String!) {
-    addRoom(input: { name: $name }) {
-      id
-      name
-    }
-  }
-`;
-
-const AddRoomWithMutation = graphql(addRoomMutation)(AddRoom);
-
-const RoomList = ({ data: { loading, error, rooms }}) => {
-  if (loading) {
-    return <p>Loading ...</p>;
-  }
-  if (error) {
-    return <p>{error.message}</p>;
-  }
-
-  return (
-    <div className="roomList">
-      <AddRoomWithMutation />
-      { rooms.map( room =>
-        (<div key={room.id} className="room">{room.name}</div>)
-      )}
-    </div>
-  );
-};
-
-const roomListQuery = gql`
-  query roomListQuery {
-    rooms {
-      id
-      name
-    }
-  }
-`;
-
-const RoomListWithData = graphql(roomListQuery)(RoomList);
-//const RoomListWithData = graphql(roomListQuery, { options: { pollInterval: 5000 }})(RoomList);
 
 class App extends Component {
   render() {
     return (
       <ApolloProvider client={client}>
-        <div className="App">
-          <div className="App-header">
-            <img src={logo} className="App-logo" alt="logo" />
-            <h2>GraphQL Subscriptions</h2>
+        <BrowserRouter>
+          <div className="App">
+            <Link to="/" className="navbar">React + GraphQL Tutorial</Link>
+            <Switch>
+              <Route exact path="/" component={ChannelsListWithData}/>
+              <Route path="/channel/:channelId" component={ChannelDetails}/>
+              <Route component={ NotFound }/>
+            </Switch>
           </div>
-          <RoomListWithData />
-        </div>
+        </BrowserRouter>
       </ApolloProvider>
     );
   }
