@@ -11,6 +11,7 @@ Mutations::AddMessageMutation = GraphQL::Relay::Mutation.define do
   resolve ->(object, inputs, ctx) {
     message = Channel.find(inputs[:channel_id]).messages.build(text: inputs[:text])
     message.save
+    GraphqlSchema.subscriptions.trigger("messageWasAdded", {}, message)
 
     {
       id: message.id,
