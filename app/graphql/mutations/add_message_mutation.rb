@@ -1,19 +1,21 @@
 Mutations::AddMessageMutation = GraphQL::Relay::Mutation.define do
   name "AddMessage"
 
-  input_field :room_id, !types.ID
+  input_field :channel_id, !types.ID
   input_field :text, !types.String
 
-  return_interfaces [Interfaces::MutationResult]
+  return_field :id, types.ID
+  return_field :channel_id, types.ID
+  return_field :text, types.String
 
   resolve ->(object, inputs, ctx) {
-    message = Room.find(inputs[:room_id]).messages.build(text: inputs[:text])
+    message = Channel.find(inputs[:channel_id]).messages.build(text: inputs[:text])
     message.save
 
     {
-      success: message.persisted?,
-      notice: message.attributes,
-      errors: message.errors.full_messages.to_sentence
+      id: message.id,
+      text: message.text,
+      channel_id: message.channel_id
     }
   }
 end

@@ -1,4 +1,4 @@
 class Message < ApplicationRecord
-  belongs_to :room
-  validates_presence_of :room_id, :text
+  belongs_to :channel
+  validates_presence_of :channel_id, :text
 end
