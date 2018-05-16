@@ -23,7 +23,7 @@ import { SubscriptionClient, addGraphQLSubscriptions } from 'subscriptions-trans
 const networkInterface = createNetworkInterface({ uri: 'http://localhost:4000/graphql' });
 networkInterface.use([{
   applyMiddleware(req, next) {
-    setTimeout(next, 500);
+    setTimeout(next, 5000);
   },
 }]);
 
